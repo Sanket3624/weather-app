@@ -5,6 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather App</title>
   <link rel="stylesheet" href="main.css" />
+  <style media="screen">
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  .button:hover {
+    background-color: #0056b3;
+  }
+  .forecast {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .card {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      flex-basis: calc(25% - 20px);
+    }
+  </style>
 </head>
 <body>
   <div class="app-wrap">
@@ -22,7 +49,15 @@
         <input type="text" autocomplete="off" class="search-box" placeholder="Search for a city..." />
         <button onclick="getLocation()">Get Current Location</button>
       </header>
-      <p>Click the button to get your coordinates.</p>
+      <div class="forecast">
+              <!-- Cards for weather forecast -->
+              <div class="card" id="day1">
+                
+              </div>
+              <div class="card" id="day2"></div>
+              <div class="card" id="day3"></div>
+              <div class="card" id="day4"></div>
+            </div>
       <p id="demo"></p>
     </main>
   </div>
@@ -30,6 +65,34 @@
     const api = {
       key: "e6c40e7112dadb0d0f50e92734a88d39",
       base: "https://api.openweathermap.org/data/2.5/"
+    }
+    const api1 = {
+      key: "e6c40e7112dadb0d0f50e92734a88d39",
+      base: "https://pro.openweathermap.org/data/2.5/forecast/hourly"
+    }
+
+
+
+    function getForecast(latitude, longitude) {
+      fetch(`${api.base}?lat=${latitude}&lon=${longitude}&appid=${api1.key}`)
+        .then(response => response.json())
+        .then(data => {
+          const forecastData = data.list;
+
+          for (let i = 0; i < 4; i++) {
+            const forecastCard = document.getElementById(`day${i + 1}`);
+            const forecast = forecastData[i * 8];
+            const date = new Date(forecast.dt * 1000);
+
+            forecastCard.innerHTML = `
+              <h3>${date.toDateString()}</h3>
+              <div>${forecast.weather[0].description}</div>
+              <div>Temp: ${Math.round(forecast.main.temp)}°C</div>
+              <div>Min/Max: ${Math.round(forecast.main.temp_min)}°C / ${Math.round(forecast.main.temp_max)}°C</div>
+            `;
+          }
+        })
+        .catch(error => console.error('Error fetching forecast:', error));
     }
 
     const searchbox = document.querySelector('.search-box');
